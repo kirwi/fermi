@@ -2,7 +2,7 @@
 # model at half filling. The phase diagram is a 2-dimensional space, and each
 # point in space corresponds to a unique set of values to start the RG-flow
 # process. The RG-flow process can be done differentially until one of the
-# couplings diverges. The phase space points correspond to different initail
+# couplings diverges. The phase space points correspond to different initial
 # conditions to the ode solver.
 
 import numpy as np
@@ -30,7 +30,8 @@ def corrs(u, r):
     hsdwb = ufctr * (g2 - g3)
     hss = ufctr * (-g1 - g2)
     hst = ufctr * (g1 - g2)
-    return np.array([hg1,hg2,hg3,hg4,hcdws,hcdwb,hsdws,hsdwb,hss,hst], float)
+    return np.array([hg1,hg2,hg3,hg4,hcdws,hcdwb,hsdws,hsdwb,hss,hst],
+                    float)
 
 # Compute ode for couplings in the tll region (no couplings diverge). Solve
 # for various bosonized critical exponents and sort by their ode solution.
@@ -66,8 +67,16 @@ def out(t,y):
     else: return None
 
 def dvrg(uzr, upi):
-    r0 = np.array([1.-upi, 1.-uzr, 1.-upi, 1.-uzr,
-                  0., 0., 0., 0., 0., 0.], float)
+    g10, g20, g30, g40 = 1.-upi, 1.-uzr, 1.-upi, 1.-uzr
+    cdws0 = g20 - g30 - 2.0*g10
+    cdwb0 = g20 + g30 - 2.0*g10
+    sdws0 = g20 + g30
+    sdwb0 = g20 - g30
+    ss0 = -g10 - g20
+    st0 = g10 - g20
+
+    r0 = np.array([g10,g20,g30,g40,cdws0,cdwb0,sdws0,sdwb0,ss0,st0], float)
+#    r0 = np.array([g10,g20,g30,g40,0,0,0,0,0,0], float)
     du = .001
     hfuncs = ode(corrs).set_integrator('dopri5')
     hfuncs.set_initial_value(r0)
@@ -77,20 +86,20 @@ def dvrg(uzr, upi):
     sols = []
 
     while hfuncs.successful() and hfuncs.t < uf:
-        ts.append(1. / (1-hfuncs.t))
-        sols.append(hfuncs.y)        
+        ts.append(hfuncs.t / (1-hfuncs.t))
+        sols.append(hfuncs.y)
         hfuncs.integrate(hfuncs.t+du)
 
-    g1, g2, g3, g4 = [map(lambda x: x[i],sols) for i in range(4)]
-    cdws, cdwb, sdws, sdwb, ss, st = [map(lambda x: x[i],sols) 
+    g1, g2, g3, g4 = np.array([map(lambda x: x[i],sols) for i in range(4)])
+    cdws, cdwb, sdws, sdwb, ss, st = [map(lambda x: x[i],sols)
                                       for i in range(4,10)]
-    coups = [(g1,'g1','red','^'),(g2,'g2','orange','^'),
-             (g3,'g3','yellow','^'),(g4,'g4','green','^')]
-    chis =  sorted([(cdws,'cdws','red','^'),
-                    (cdwb,'cdwb','orange','^'),
-                    (sdws,'sdws','yellow','^'),
-                    (sdwb,'sdwb','green','^'),
-                    (ss,'ss','blue','^'),
-                    (st,'st','purple','^')], 
+    coups = [(g1,'g1','red'),(g2,'g2','orange'),
+             (g3,'g3','blue'),(g4,'g4','green')]
+    chis =  sorted([(cdws,'cdws','red','o'),
+                    (cdwb,'cdwb','orange','o'),
+                    (sdws,'sdws','cyan','o'),
+                    (sdwb,'sdwb','green','o'),
+                    (ss,'ss','blue','o'),
+                    (st,'st','purple','o')],
                    key=lambda p: np.absolute(p[0][-1]))
     return ts, coups, chis
