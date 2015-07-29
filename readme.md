@@ -1,3 +1,5 @@
+##Mixed-dimensional fermions, oh my!
+
 This is a collection of code I wrote in graduate school to solve a 
 fermionic lattice problem. Two species of fermions interact on a lattice -
 one species can hop around on a 1D chain, the other can hop around on a 2D
