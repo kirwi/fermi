@@ -1,4 +1,4 @@
-##Mixed-dimensional fermions, oh my!
+### Mixed-dimensional fermions, oh my!
 
 This is a collection of code I wrote in graduate school to solve a 
 fermionic lattice problem. Two species of fermions interact on a lattice -
